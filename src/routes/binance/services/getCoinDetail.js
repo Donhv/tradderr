@@ -1,0 +1,19 @@
+import axios from "axios";
+import CoinInfo from "../../../models/CoinInfo";
+import logger from "../../../config/winston";
+import CoinDetail from "../../../models/CoinDetail";
+import properties from "../../../config/properties";
+
+const getCoinDetail = (symbol) => {
+    const url = `${properties.get("binance.url")}/v1/ticker/24hr?symbol=${symbol}`;
+    logger.info("URL request", url);
+    return axios.get(url).then(response => {
+        const coinDetailJson = {...response.data, symbol};
+        const coinDetail = new CoinDetail();
+        coinDetail.fromBinance(coinDetailJson);
+        const coinInfo = new CoinInfo(symbol);
+        return Promise.resolve({...coinDetail, coinInfo});
+    });
+};
+
+export default getCoinDetail;
